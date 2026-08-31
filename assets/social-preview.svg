@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="640" viewBox="0 0 1280 640" role="img" aria-labelledby="title description">
+  <title id="title">Weather MCP Server</title>
+  <desc id="description">A repository social card for a Model Context Protocol server providing US forecasts and active alerts.</desc>
+  <rect width="1280" height="640" fill="#0f172a"/>
+  <circle cx="1110" cy="50" r="300" fill="#2563eb" opacity="0.34"/>
+  <circle cx="1180" cy="640" r="310" fill="#0f766e" opacity="0.28"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="80" y="116" fill="#67e8f9" font-size="22" font-weight="700" letter-spacing="4">MODEL CONTEXT PROTOCOL</text>
+    <text x="80" y="204" fill="#ffffff" font-size="66" font-weight="800">Weather MCP Server</text>
+    <text x="80" y="258" fill="#cbd5e1" font-size="28">US forecasts and alerts, ready for compatible AI clients.</text>
+    <g transform="translate(80 340)">
+      <rect width="330" height="160" rx="24" fill="#ffffff"/>
+      <circle cx="54" cy="54" r="25" fill="#fbbf24"/><circle cx="70" cy="68" r="21" fill="#dbeafe"/><rect x="39" y="66" width="64" height="25" rx="13" fill="#dbeafe"/>
+      <text x="32" y="126" fill="#0f172a" font-size="24" font-weight="800">get-forecast</text>
+      <text x="32" y="150" fill="#64748b" font-size="16">Temperature, wind, outlook</text>
+    </g>
+    <g transform="translate(440 340)">
+      <rect width="330" height="160" rx="24" fill="#ecfeff"/>
+      <path d="M56 29l30 54H26z" fill="#f97316"/><path d="M56 48v18m0 9h.1" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+      <text x="32" y="126" fill="#134e4a" font-size="24" font-weight="800">get-alerts</text>
+      <text x="32" y="150" fill="#0f766e" font-size="16">Active alerts by state</text>
+    </g>
+    <g transform="translate(800 340)">
+      <rect width="400" height="160" rx="24" fill="#eef2ff"/>
+      <circle cx="50" cy="54" r="23" fill="#2563eb"/><path d="M40 54l8 8 16-20" fill="none" stroke="#fff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+      <text x="86" y="60" fill="#1e1b4b" font-size="21" font-weight="800">Tested and read-only</text>
+      <text x="32" y="112" fill="#475569" font-size="17">No weather API key</text>
+      <text x="32" y="142" fill="#475569" font-size="17">No stored user data</text>
+    </g>
+    <text x="80" y="566" fill="#94a3b8" font-size="18">National Weather Service data  |  stdio transport  |  Node.js</text>
+  </g>
+</svg>

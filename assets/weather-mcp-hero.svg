@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="360" viewBox="0 0 1200 360" role="img" aria-labelledby="title description">
+  <title id="title">Weather MCP Server</title>
+  <desc id="description">A blue weather map with forecast and alert cards connected through the Model Context Protocol.</desc>
+  <rect width="1200" height="360" rx="28" fill="#0f172a"/>
+  <circle cx="1050" cy="70" r="190" fill="#2563eb" opacity="0.30"/>
+  <circle cx="1120" cy="330" r="230" fill="#0f766e" opacity="0.24"/>
+  <g font-family="Arial, Helvetica, sans-serif">
+    <text x="68" y="104" fill="#67e8f9" font-size="19" font-weight="700" letter-spacing="3">MODEL CONTEXT PROTOCOL</text>
+    <text x="68" y="168" fill="#ffffff" font-size="52" font-weight="800">Weather MCP Server</text>
+    <text x="68" y="212" fill="#cbd5e1" font-size="23">US forecasts and active alerts from the National Weather Service.</text>
+    <g transform="translate(68 254)" font-size="16" font-weight="700">
+      <rect width="146" height="42" rx="21" fill="#ffffff" opacity="0.12"/><text x="73" y="27" fill="#ffffff" text-anchor="middle">No API key</text>
+      <g transform="translate(160 0)"><rect width="156" height="42" rx="21" fill="#ffffff" opacity="0.12"/><text x="78" y="27" fill="#ffffff" text-anchor="middle">stdio transport</text></g>
+      <g transform="translate(330 0)"><rect width="164" height="42" rx="21" fill="#ffffff" opacity="0.12"/><text x="82" y="27" fill="#ffffff" text-anchor="middle">Read-only tools</text></g>
+    </g>
+    <g transform="translate(760 54)">
+      <rect width="360" height="252" rx="24" fill="#ffffff"/>
+      <g transform="translate(28 28)"><circle cx="30" cy="30" r="30" fill="#fbbf24"/><circle cx="47" cy="43" r="25" fill="#e0f2fe"/><rect x="18" y="42" width="72" height="30" rx="15" fill="#e0f2fe"/></g>
+      <text x="132" y="58" fill="#0f172a" font-size="21" font-weight="800">Boston forecast</text>
+      <text x="132" y="87" fill="#64748b" font-size="16">42.3601, -71.0589</text>
+      <path d="M28 120h304" stroke="#e2e8f0" stroke-width="2"/>
+      <text x="28" y="158" fill="#0f172a" font-size="18" font-weight="700">Tonight</text>
+      <text x="332" y="158" fill="#2563eb" font-size="28" font-weight="800" text-anchor="end">58°F</text>
+      <text x="28" y="190" fill="#475569" font-size="16">Partly cloudy</text>
+      <rect x="28" y="212" width="304" height="20" rx="10" fill="#ecfeff"/><text x="180" y="227" fill="#0f766e" font-size="13" font-weight="700" text-anchor="middle">NATIONAL WEATHER SERVICE</text>
+    </g>
+  </g>
+</svg>

@@ -1,98 +1,55 @@
+#!/usr/bin/env node
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
-const NWS_API_BASE = "https://api.weather.gov";
-const USER_AGENT = "weather-app/1.0";
-// Create server instance
-const server = new McpServer({
-    name: "weather",
-    version: "1.0.0"
-}, { capabilities: {
-        resources: {},
-        tools: {},
-    } });
-// Helper function for making NWS API requests
-async function makeNWSRequest(url) {
-    const headers = {
-        "User-Agent": USER_AGENT,
-        Accept: "application/geo+json",
-    };
-    try {
-        const response = await fetch(url, { headers });
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        return (await response.json());
-    }
-    catch (error) {
-        console.error("Error making NWS request:", error);
-        return null;
-    }
-}
-// Format alert data
-function formatAlert(feature) {
-    const props = feature.properties;
-    return [
-        `Event: ${props.event || "Unknown"}`,
-        `Area: ${props.areaDesc || "Unknown"}`,
-        `Severity: ${props.severity || "Unknown"}`,
-        `Status: ${props.status || "Unknown"}`,
-        `Headline: ${props.headline || "No headline"}`,
-        "---",
-    ].join("\n");
-}
-// Register weather tools
-server.tool("get-alerts", "Get weather alerts for a state", {
-    state: z.string().length(2).describe("Two-letter state code (e.g. CA, NY)"),
+import { buildAlertsUrl, buildPointsUrl, formatAlert, formatForecastPeriod, makeNWSRequest, normalizeStateCode, } from "./weather.js";
+const server = new McpServer({ name: "weather", version: "1.0.0" }, { capabilities: { resources: {}, tools: {} } });
+server.registerTool("get-alerts", {
+    description: "Get active National Weather Service alerts for a US state",
+    inputSchema: {
+        state: z
+            .string()
+            .trim()
+            .regex(/^[A-Za-z]{2}$/)
+            .describe("Two-letter US state or territory code, such as CA or NY"),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
 }, async ({ state }) => {
-    const stateCode = state.toUpperCase();
-    const alertsUrl = `${NWS_API_BASE}/alerts?area=${stateCode}`;
-    const alertsData = await makeNWSRequest(alertsUrl);
+    const stateCode = normalizeStateCode(state);
+    const alertsData = await makeNWSRequest(buildAlertsUrl(stateCode));
     if (!alertsData) {
-        return {
-            content: [
-                {
-                    type: "text",
-                    text: "Failed to retrieve alerts data",
-                },
-            ],
-        };
+        return { content: [{ type: "text", text: "Failed to retrieve alerts data" }] };
     }
-    const features = alertsData.features || [];
+    const features = alertsData.features ?? [];
     if (features.length === 0) {
         return {
-            content: [
-                {
-                    type: "text",
-                    text: `No active alerts for ${stateCode}`,
-                },
-            ],
+            content: [{ type: "text", text: `No active alerts for ${stateCode}` }],
         };
     }
-    const formattedAlerts = features.map(formatAlert);
-    const alertsText = `Active alerts for ${stateCode}:\n\n${formattedAlerts.join("\n")}`;
     return {
         content: [
             {
                 type: "text",
-                text: alertsText,
+                text: `Active alerts for ${stateCode}:\n\n${features.map(formatAlert).join("\n")}`,
             },
         ],
     };
 });
-server.tool("get-forecast", "Get weather forecast for a location", {
-    latitude: z.number().min(-90).max(90).describe("Latitude of the location"),
-    longitude: z.number().min(-180).max(180).describe("Longitude of the location"),
+server.registerTool("get-forecast", {
+    description: "Get a National Weather Service forecast for US coordinates",
+    inputSchema: {
+        latitude: z.number().min(-90).max(90).describe("Latitude of the location"),
+        longitude: z.number().min(-180).max(180).describe("Longitude of the location"),
+    },
+    annotations: { readOnlyHint: true, openWorldHint: true },
 }, async ({ latitude, longitude }) => {
-    // Get grid point data
-    const pointsUrl = `${NWS_API_BASE}/points/${latitude.toFixed(4)},${longitude.toFixed(4)}`;
-    const pointsData = await makeNWSRequest(pointsUrl);
+    const pointsData = await makeNWSRequest(buildPointsUrl(latitude, longitude));
     if (!pointsData) {
         return {
             content: [
                 {
                     type: "text",
-                    text: `Failed to retrieve grid point data for coordinates: ${latitude}, ${longitude}. This location may not be supported by the NWS API (only US locations are supported).`,
+                    text: `Failed to retrieve grid point data for coordinates: ${latitude}, ${longitude}. The NWS API supports US locations only.`,
                 },
             ],
         };
@@ -101,57 +58,33 @@ server.tool("get-forecast", "Get weather forecast for a location", {
     if (!forecastUrl) {
         return {
             content: [
-                {
-                    type: "text",
-                    text: "Failed to get forecast URL from grid point data",
-                },
+                { type: "text", text: "Failed to get forecast URL from grid point data" },
             ],
         };
     }
-    // Get forecast data
     const forecastData = await makeNWSRequest(forecastUrl);
     if (!forecastData) {
         return {
-            content: [
-                {
-                    type: "text",
-                    text: "Failed to retrieve forecast data",
-                },
-            ],
+            content: [{ type: "text", text: "Failed to retrieve forecast data" }],
         };
     }
-    const periods = forecastData.properties?.periods || [];
+    const periods = forecastData.properties?.periods ?? [];
     if (periods.length === 0) {
         return {
-            content: [
-                {
-                    type: "text",
-                    text: "No forecast periods available",
-                },
-            ],
+            content: [{ type: "text", text: "No forecast periods available" }],
         };
     }
-    // Format forecast periods
-    const formattedForecast = periods.map((period) => [
-        `${period.name || "Unknown"}:`,
-        `Temperature: ${period.temperature || "Unknown"}°${period.temperatureUnit || "F"}`,
-        `Wind: ${period.windSpeed || "Unknown"} ${period.windDirection || ""}`,
-        `${period.shortForecast || "No forecast available"}`,
-        "---",
-    ].join("\n"));
-    const forecastText = `Forecast for ${latitude}, ${longitude}:\n\n${formattedForecast.join("\n")}`;
     return {
         content: [
             {
                 type: "text",
-                text: forecastText,
+                text: `Forecast for ${latitude}, ${longitude}:\n\n${periods.map(formatForecastPeriod).join("\n")}`,
             },
         ],
     };
 });
 async function main() {
-    const transport = new StdioServerTransport();
-    await server.connect(transport);
+    await server.connect(new StdioServerTransport());
     console.error("Weather MCP Server running on stdio");
 }
 main().catch((error) => {
